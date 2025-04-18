@@ -10,7 +10,7 @@ from langchain.retrievers import EnsembleRetriever
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain.chains import RetrievalQA
 
-os.environ["GOOGLE_API_KEY"] = "AIzaSyDcxLifISEcpyiW6KJPJzasZlzLJv81OrQ"
+os.environ["GOOGLE_API_KEY"] = GOOGLE_API_KEY
 
 # 1. Load and split PDF
 async def ingest_pdf(file: UploadFile):
