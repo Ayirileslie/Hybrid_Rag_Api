@@ -12,3 +12,5 @@ google-auth-oauthlib
 google-generativeai
 pypdf
 python-multipart
+rank_bm25
+
