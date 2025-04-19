@@ -18,7 +18,7 @@ from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
 from langchain.schema import Document
 
-os.environ["GOOGLE_API_KEY"] = "AIzaSyDcxLifISEcpyiW6KJPJzasZlzLJv81OrQ"
+GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
 
 CHROMA_DIR = os.path.join(tempfile.gettempdir(), "chroma_db")
 
