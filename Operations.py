@@ -31,6 +31,14 @@ nltk.download('punkt_tab')
 lemmatizer = WordNetLemmatizer()
 stop_words = set(stopwords.words('english'))
 
+def clean_markdown(text):
+    # Remove Markdown bullets, asterisks, and newlines
+    text = re.sub(r'\*\*(.*?)\*\*', r'\1', text)  # remove bold
+    text = text.replace('* ', '- ')  # optional: convert bullets
+    text = text.replace('\n', ' ')   # remove line breaks
+    return text.strip()
+
+
 # Function to clean the text
 def clean_text(text):
     # Convert to lowercase
@@ -122,6 +130,8 @@ def ask_question(retriever, question: str):
     )
 
     result = qa_chain(question)
-    return {"answer": result}
+    plain_result = clean_markdown(result["result"])
+    return {"query": question, "answer": plain_result}
+
     
 

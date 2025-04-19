@@ -1,5 +1,6 @@
 import os
 import tempfile
+import shutil
 from fastapi import UploadFile
 from langchain_community.document_loaders import PyPDFLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
@@ -13,8 +14,19 @@ from fastapi import FastAPI, File, UploadFile, Form
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from Operations import ingest_pdf , build_retriever, ask_question, save_retriever, load_retriever
+from Operations import CHROMA_DIR 
 
 app = FastAPI()
+# Chroma DB location
+
+
+# Cleanup Chroma DB on startup
+@app.on_event("startup")
+def cleanup_chroma_on_startup():
+    if os.path.exists(CHROMA_DIR):
+        shutil.rmtree(CHROMA_DIR)
+        print(f"🧹 Chroma DB cleaned on startup: {CHROMA_DIR}")
+
 
 # Allow your Vercel frontend domain here
 origins = [
