@@ -45,10 +45,13 @@ app.add_middleware(
 
 @app.post("/upload-doc")
 async def upload_doc(pdf: UploadFile = File(...)):
-    docs = await ingest_pdf(pdf)
-    retriever = build_retriever(docs)
-    save_retriever(retriever)
-    return {"message": "PDF processed and retriever saved to temp file"}
+    try:
+        docs = await ingest_pdf(pdf)
+        retriever = build_retriever(docs)
+        save_retriever(retriever)
+        return {"message": "✅ PDF processed and retriever saved."}
+    except Exception as e:
+        return JSONResponse(content={"error": str(e)}, status_code=500)
 
 @app.post("/ask")
 async def ask(question: str = Form(...)):
