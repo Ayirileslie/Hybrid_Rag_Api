@@ -57,3 +57,11 @@ async def ask(question: str = Form(...)):
         return JSONResponse(content={"error": "No document uploaded yet."}, status_code=400)
     answer = ask_question(retriever, question)
     return JSONResponse(content=answer)
+
+@app.post("/refresh-backend")
+def refresh_backend():
+    if os.path.exists(CHROMA_DIR):
+        shutil.rmtree(CHROMA_DIR)
+        print(f"🔁 Backend reset: Chroma DB cleared at {CHROMA_DIR}")
+        return {"message": "✅ Backend refreshed successfully."}
+    return {"message": "ℹ️ Chroma DB was already empty."}
