@@ -19,6 +19,13 @@ from Operations import CHROMA_DIR
 app = FastAPI()
 # Chroma DB location
 
+# Allow your Vercel frontend domain here
+origins = [
+    "https://your-vercel-app.vercel.app",  # Replace with your actual Vercel frontend URL
+    "http://localhost",                    # Useful during local testing
+    "http://localhost:3000"               # Common for local frontend dev
+]
+
 
 # Cleanup Chroma DB on startup
 @app.on_event("startup")
@@ -26,14 +33,6 @@ def cleanup_chroma_on_startup():
     if os.path.exists(CHROMA_DIR):
         shutil.rmtree(CHROMA_DIR)
         print(f"🧹 Chroma DB cleaned on startup: {CHROMA_DIR}")
-
-
-# Allow your Vercel frontend domain here
-origins = [
-    "https://your-vercel-app.vercel.app",  # Replace with your actual Vercel frontend URL
-    "http://localhost",                    # Useful during local testing
-    "http://localhost:3000"               # Common for local frontend dev
-]
 
 app.add_middleware(
     CORSMiddleware,
