@@ -23,12 +23,16 @@ os.makedirs(CHROMA_DIR, exist_ok=True)  # Ensure the directory exists
 
 # ✅ Download required NLTK resources (only once)
 nltk.download('stopwords')
-nltk.download('punkt')
 nltk.download('wordnet')
 
 # NLP cleaning setup
 lemmatizer = WordNetLemmatizer()
 stop_words = set(stopwords.words('english'))
+
+import re
+def basic_tokenizer(text):
+    return re.findall(r'\b\w+\b', text)
+
 
 def clean_markdown(text):
     text = re.sub(r'\*\*(.*?)\*\*', r'\1', text)
@@ -40,7 +44,7 @@ def clean_text(text):
     text = text.lower()
     text = re.sub(r'[^a-z\s]', '', text)
     text = ' '.join(text.split())
-    words = nltk.word_tokenize(text)
+    words = basic_tokenizer(text)
     cleaned_words = [lemmatizer.lemmatize(word) for word in words if word not in stop_words]
     return ' '.join(cleaned_words)
 
