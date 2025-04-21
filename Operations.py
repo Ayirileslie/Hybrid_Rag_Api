@@ -2,6 +2,7 @@ import os
 import re
 import nltk
 import string
+import tempfile
 from fastapi import UploadFile
 from langchain_community.document_loaders import PyPDFLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
@@ -18,8 +19,8 @@ from langchain.schema import Document
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
 
 # ✅ Use a safe, writable directory instead of tempfile
-CHROMA_DIR = os.path.join(os.getcwd(), "chroma_db")
-os.makedirs(CHROMA_DIR, exist_ok=True)  # Ensure the directory exists
+CHROMA_DIR = os.path.join(tempfile.gettempdir(), "chroma_db")
+os.makedirs(CHROMA_DIR, exist_ok=True)
 
 # ✅ Download required NLTK resources (only once)
 nltk.download('stopwords')
