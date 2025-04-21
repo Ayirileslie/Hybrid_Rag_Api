@@ -1,69 +1,58 @@
 import os
-import tempfile
-import pickle
-import tempfile
 import re
-import string
 import nltk
+import string
 from fastapi import UploadFile
 from langchain_community.document_loaders import PyPDFLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.vectorstores import Chroma
-from langchain_google_genai import GoogleGenerativeAIEmbeddings
+from langchain_google_genai import GoogleGenerativeAIEmbeddings, ChatGoogleGenerativeAI
 from langchain_community.retrievers import BM25Retriever
 from langchain.retrievers import EnsembleRetriever
-from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain.chains import RetrievalQA
 from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
 from langchain.schema import Document
 
+# Set up your API key
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
 
-CHROMA_DIR = os.path.join(tempfile.gettempdir(), "chroma_db")
+# ✅ Use a safe, writable directory instead of tempfile
+CHROMA_DIR = os.path.join(os.getcwd(), "chroma_db")
+os.makedirs(CHROMA_DIR, exist_ok=True)  # Ensure the directory exists
 
+# ✅ Download required NLTK resources (only once)
 nltk.download('stopwords')
 nltk.download('punkt')
 nltk.download('wordnet')
-nltk.download('punkt_tab')
 
-# Initialize the lemmatizer and stopwords list
+# NLP cleaning setup
 lemmatizer = WordNetLemmatizer()
 stop_words = set(stopwords.words('english'))
 
 def clean_markdown(text):
-    # Remove Markdown bullets, asterisks, and newlines
-    text = re.sub(r'\*\*(.*?)\*\*', r'\1', text)  # remove bold
-    text = text.replace('* ', '- ')  # optional: convert bullets
-    text = text.replace('\n', ' ')   # remove line breaks
+    text = re.sub(r'\*\*(.*?)\*\*', r'\1', text)
+    text = text.replace('* ', '- ')
+    text = text.replace('\n', ' ')
     return text.strip()
 
-
-# Function to clean the text
 def clean_text(text):
-    # Convert to lowercase
     text = text.lower()
-    # Remove special characters and digits (optional depending on your case)
     text = re.sub(r'[^a-z\s]', '', text)
-    # Remove extra spaces
     text = ' '.join(text.split())
-    # Tokenize the text
     words = nltk.word_tokenize(text)
-    # Remove stopwords and apply lemmatization
-    cleaned_words = [
-        lemmatizer.lemmatize(word) for word in words if word not in stop_words
-    ]# Reconstruct the text from cleaned words
-    cleaned_text = ' '.join(cleaned_words)
-    return cleaned_text
+    cleaned_words = [lemmatizer.lemmatize(word) for word in words if word not in stop_words]
+    return ' '.join(cleaned_words)
 
+# Function to save retriever (no-op since Chroma handles persistence)
 def save_retriever(retriever):
-    # No longer needed – Chroma handles persistence
     pass
 
+# Load retriever from persisted Chroma
 def load_retriever():
     if not os.path.exists(CHROMA_DIR):
         return None
-    
+
     embeddings = GoogleGenerativeAIEmbeddings(model="models/embedding-001")
     vectorstore = Chroma(
         persist_directory=CHROMA_DIR,
@@ -71,18 +60,16 @@ def load_retriever():
     )
 
     dense_retriever = vectorstore.as_retriever(search_kwargs={"k": 3})
-    
-    # optional: load BM25 again if needed
-    # if not, just use dense_retriever
+
     ensemble = EnsembleRetriever(
         retrievers=[dense_retriever],
         weights=[1.0]
     )
     return ensemble
 
-
-
+# Ingest uploaded PDF
 async def ingest_pdf(file: UploadFile):
+    import tempfile
     with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmp:
         tmp.write(await file.read())
         tmp_path = tmp.name
@@ -100,13 +87,17 @@ async def ingest_pdf(file: UploadFile):
     os.remove(tmp_path)
     return cleaned_docs
 
-# 2. Embed and build ensemble retriever (BM25 + Chroma)
+# Build vectorstore and retriever
 def build_retriever(docs):
     splitter = RecursiveCharacterTextSplitter(chunk_size=500, chunk_overlap=50)
     chunks = splitter.split_documents(docs)
 
     embeddings = GoogleGenerativeAIEmbeddings(model="models/embedding-001")
-    vectorstore = Chroma.from_documents(chunks, embedding=embeddings,persist_directory=CHROMA_DIR)
+    vectorstore = Chroma.from_documents(
+        documents=chunks,
+        embedding=embeddings,
+        persist_directory=CHROMA_DIR
+    )
     vectorstore.persist()
 
     dense_retriever = vectorstore.as_retriever(search_kwargs={"k": 3})
@@ -120,7 +111,7 @@ def build_retriever(docs):
 
     return ensemble
 
-# 3. Create QA chain with Gemini
+# Ask a question using Gemini and retrieval
 def ask_question(retriever, question: str):
     llm = ChatGoogleGenerativeAI(model="gemini-2.0-flash-001", temperature=0.2)
     qa_chain = RetrievalQA.from_chain_type(
@@ -132,6 +123,3 @@ def ask_question(retriever, question: str):
     result = qa_chain(question)
     plain_result = clean_markdown(result["result"])
     return {"query": question, "answer": plain_result}
-
-    
-
