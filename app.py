@@ -1,6 +1,8 @@
 import os
 import tempfile
 import shutil
+from fastapi import HTTPException
+import traceback
 from fastapi import UploadFile
 from langchain_community.document_loaders import PyPDFLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
@@ -46,12 +48,18 @@ app.add_middleware(
 @app.post("/upload-doc")
 async def upload_doc(pdf: UploadFile = File(...)):
     try:
+        # Log file name and size
+        contents = await pdf.read()
+        size_mb = len(contents) / (1024 * 1024)
+        print(f"📄 Received file: {pdf.filename}, size: {size_mb:.2f} MB")
+        await pdf.seek(0)  # Reset the file pointer
+
         docs = await ingest_pdf(pdf)
         retriever = build_retriever(docs)
         save_retriever(retriever)
-        return {"message": "PDF processed and retriever saved to temp file"}
+        return {"message": "✅ PDF processed and retriever saved"}
     except Exception as e:
-        print("🔥 Upload error:", str(e))
+        print("❌ Upload error:", str(e))
         traceback.print_exc()
         raise HTTPException(status_code=500, detail="Upload failed on server. Check logs.")
 
