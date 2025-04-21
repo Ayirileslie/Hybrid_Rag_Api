@@ -23,7 +23,7 @@ app = FastAPI()
 
 # Allow your Vercel frontend domain here
 origins = [
-    "https://your-vercel-app.vercel.app",  # Replace with your actual Vercel frontend URL
+    "https://query-verse-m1sh.vercel.app",  # Replace with your actual Vercel frontend URL
     "http://localhost",                    # Useful during local testing
     "http://localhost:3000"               # Common for local frontend dev
 ]
