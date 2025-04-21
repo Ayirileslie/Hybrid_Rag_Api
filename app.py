@@ -49,9 +49,11 @@ async def upload_doc(pdf: UploadFile = File(...)):
         docs = await ingest_pdf(pdf)
         retriever = build_retriever(docs)
         save_retriever(retriever)
-        return {"message": "✅ PDF processed and retriever saved."}
+        return {"message": "PDF processed and retriever saved to temp file"}
     except Exception as e:
-        return JSONResponse(content={"error": str(e)}, status_code=500)
+        print("🔥 Upload error:", str(e))
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail="Upload failed on server. Check logs.")
 
 @app.post("/ask")
 async def ask(question: str = Form(...)):
