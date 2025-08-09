@@ -1,4 +1,5 @@
-**Demo Video**:[![Watch the demo](https://img.youtube.com/vi/VIDEO_ID/maxresdefault.jpg)]([https://youtu.be/VIDEO_ID](https://youtu.be/qTJfmd2wUEE))
+[![Watch the demo](https://img.youtube.com/vi/VIDEO_ID/maxresdefault.jpg)](https://youtu.be/VIDEO_ID)
+
 
 # QueryVerse Backend API 📚🤖
 
