@@ -1,3 +1,5 @@
+**Demo Video**:[![Watch the demo](https://img.youtube.com/vi/VIDEO_ID/maxresdefault.jpg)]([https://youtu.be/VIDEO_ID](https://youtu.be/qTJfmd2wUEE))
+
 # QueryVerse Backend API 📚🤖
 
 A powerful AI-powered document question-answering API that allows you to upload PDF documents and ask intelligent questions about their content. Built with FastAPI and powered by Google's Gemini AI with advanced retrieval techniques.
@@ -26,8 +28,6 @@ A powerful AI-powered document question-answering API that allows you to upload 
 Access the frontend interface at: **[https://query-verse-m1sh.vercel.app](https://query-verse-m1sh.vercel.app)**
 
 ## 📹 Video Documentation
-
-**Demo Video**: [Watch Full Demo](https://your-video-link-here.com) - Complete walkthrough of the API functionality
 
 **API Tutorial**: [Backend Setup Guide](https://your-tutorial-link-here.com) - Step-by-step setup and usage guide
 
