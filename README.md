@@ -240,9 +240,6 @@ Test the API endpoints using the provided curl examples or tools like Postman.
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
 
-## 📝 License
-
-This project is licensed under the MIT License.
 
 ## 🙏 Acknowledgments
 
